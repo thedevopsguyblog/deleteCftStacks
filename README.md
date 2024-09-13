@@ -1,7 +1,9 @@
 # Delete Stack
 
-Using Lambda, delete all stacks in cloudformation that have the tag..
+Using Lambda, delete all stacks cft with a name starting with D or T.
 
-"RESOURCE_PREFIX" : ["D", "T"]
+TODO:
 
-Do not delete "RESOURCE_PREFIX:P"
+- check and recheck if the stacks have been deleted using exponential backof
+- might need to move to a state machine
+- jest testing needs a little more work too
