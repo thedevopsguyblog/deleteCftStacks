@@ -17,6 +17,11 @@ export class DeleteStacksStack extends cdk.Stack {
       description: 'List all stacks in the account with a RESOURCE_PREFIX of D or T and delete them',
       entry: `${process.cwd()}/src/lambda.ts`,
     })
+    
+    fn.addToRolePolicy(new cdk.aws_iam.PolicyStatement({
+      actions: ['cloudformation:ListStacks', 'cloudformation:DeleteStack'],
+      resources: ['*']
+    }))
 
     const triggerA = new cdk.aws_events.Rule(this, 'deleteStacksRule1', {
       schedule: cdk.aws_events.Schedule.cron({ minute: '0', hour: '23' }),

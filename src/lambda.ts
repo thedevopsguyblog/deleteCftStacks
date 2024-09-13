@@ -43,20 +43,32 @@ export async function getStacks(){
         return filteredStacks;
     }
     catch (err) {
-        console.error('\nError in running getStacks():\n',err);
-        return [];
+        if (err instanceof Error){
+            switch (err.name) {
+                case 'AccessDenied':
+                    throw new Error("Access Denied: Please check your permissions");
+                case 'CredentialsProviderError':
+                    throw new Error('Access Denied: Please check your permissions');
+                default:
+                    console.error('Known Error in running getStacks()',err);
+                    throw err;
+            }
+        } else {
+            console.error('\nError in running getStacks():\n',err);
+            throw err;
+        }
     }
 
 }
 
 export async function deleteStack(stack: StackSummary){
     console.debug('Deleting:', stack.StackName);
-    // const command = new DeleteStackCommand({ 
-    //     StackName: stack.StackName!,
-    //     DeletionMode: stack.StackStatus === 'DELETE_FAILED' ? 'FORCE_DELETE_STACK' : 'STANDARD'
-    // });
-    // const response = await client.send(command);
-    // console.debug('Response:', response);
+    const command = new DeleteStackCommand({ 
+        StackName: stack.StackName!,
+        DeletionMode: stack.StackStatus === 'DELETE_FAILED' ? 'FORCE_DELETE_STACK' : 'STANDARD'
+    });
+    const response = await client.send(command);
+    console.debug('Response:', response);
     return false;
 }
 
@@ -64,7 +76,11 @@ export async function deleteStack(stack: StackSummary){
  * @description Retry deletion for failed stacks
  * @param stacks an array of StackSummary objects
  */
-export async function retryDeletion(stacks:StackSummary[]){
+export async function retryDeletion(stacks:StackSummary[]|undefined){
+    if (stacks === undefined || stacks.length === 0) {
+        console.log('During a retry, there were no stacks to delete');
+        return undefined
+    }
     const failedStacks = stacks.filter(s => s.StackStatus === 'DELETE_FAILED' || 'CREATE_COMPLETE');
     console.debug('Retry Stacks:', stacks.length, 'Filtered Stacks:', failedStacks.length);
     
@@ -96,7 +112,7 @@ export const handler = async () => {
     console.log('Begin deletion process');    
     const filteredStacks:StackSummary[] = [];
     const stacks = await getStacks();
-    if (stacks.length === 0) {
+    if (stacks === undefined || stacks.length === 0) {
         console.log('No stacks to delete');
         return;
     }
