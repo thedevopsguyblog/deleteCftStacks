@@ -1,9 +1,10 @@
 # Delete Stack
 
-Using Lambda, delete all stacks cft with a name starting with D or T.
+Using Lambda and EventBridge , delete all cft stacks matching a pattern.
 
 TODO:
 
-- check and recheck if the stacks have been deleted using exponential backof
-- might need to move to a state machine
-- jest testing needs a little more work too
+- Check and recheck if the stacks have been deleted using exponential backof.
+- Build an alerting/reporting feature.
+- Might need to move to a state machine.
+- Jest testing needs a little more work too.
